@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="js/layer/skin/layer.css"/>
+	<title>留言板</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	<script src="js/bootstrap/html5shiv.min.js"></script>
+	<script src="js/bootstrap/respond.min.js"></script>		
+	<![end if] -->
+</head>
+<body>
+<div class="container">
+	<ol class="breadcrumb">
+		<li><a href="#">人力资源管理系统</a></li>
+		<li><a href="#">留言板</a></li>			
+		<li>员工留言</li>
+	</ol>
+	<h2 class="page-header">员工留言</h2>	
+	<div class="row">
+		<div class="panel">
+			<div class="panel-heading">
+				<textarea name="leaveMessage" id="leaveMessage" class="col-xs-12" cols="30" rows="10"></textarea>
+			</div>
+			<div class="panel-body">
+				<input type="button" value="发表留言" id="sendLm" class="btn btn-info pull-right">
+			</div>			
+		</div>
+		
+	</div>
+	<div class="row" id="lmContent">
+		<a href="#" id="bottom"></a>
+	</div>
+		
+</div>
+
+<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+	
+<!--引入全局公共js文件-->
+	<script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/bootstrap.js"></script>
+	<script src="js/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(function(){
+
+			// 创建WebSocket对象，连接服务器
+			var webSocket = new WebSocket('ws://192.168.55.16:7777/hr/QueryLmWebSocket');
+
+			// 连接成功事件回调
+			webSocket.onopen = function() {
+				
+			}
+
+			// 连接错误事件回调
+			webSocket.onerror = function() {
+				layer.msg('连接失败');
+			}
+
+			// 连接关闭事件回调
+			webSocket.onclose = function() {
+				layer.msg('网络连接已关闭');
+			}
+
+			// 消息事件回调,e.data就是服务器端推送的数据
+			webSocket.onmessage = function(e) {
+				console.log(e.data);
+				var json = $.parseJSON(e.data);
+				console.log(json);
+				var thml = '';
+				$.each(json, function(index, val) {
+					thml = '';
+					thml += '<div class="panel panel-success">';
+					thml += '	<div class="panel-heading">'+ val.lmbEmpName +':</div>';
+					thml += '	<div class="panel-body">'+ val.lmbText +'</div>';
+					thml += '</div>';
+					$('#bottom').after(thml);
+				});
+
+				
+			}
+
+			// 发送数据给服务器
+			$('#sendLm').click(function(event) {
+				
+				$.get(baseUrl + "/GetLoginNameSerlet", function(data) {
+					var sendJson = '[{"lmbEmpId":"'+ data +'","lmbText":"'+ $('#leaveMessage').val() +'"}]';
+					console.log("sendJson = " + sendJson);
+                	webSocket.send(sendJson);
+                        
+                });
+
+			});
+		});
+		
+	</script>
+</body>
+</html>

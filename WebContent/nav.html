@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+<!--引入bootstrap的核心css-->
+<link rel="stylesheet" href="js/bootstrap/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="js/layer/skin/layer.css"/>
+<title>导航菜单</title>
+<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+<!--[if lt IE 9]>
+<script src="js/bootstrap/html5shiv.min.js"></script>
+<script src="js/bootstrap/respond.min.js"></script>		
+<![end if] -->
+<style type="text/css">
+	
+	*{
+		margin:0;
+		padding:0;
+	}
+	body{
+		background:#313031;
+	}
+	/*头像区*/
+	.touxiang{
+		width: 200px;
+		height: 200px;
+		margin: 0 auto;
+		overflow: hidden;
+		border: 2px solid #ffffff;
+		border-radius: 50%;
+	}
+	.touxiang img{
+		width: 100%;
+		display: block;
+	}
+
+	/*左侧导航链接*/
+	.nav-left .list-group-item{
+		background: transparent;
+		border: none;
+		border-radius: 0!important;
+		line-height: 35px;
+		text-align: center;
+		color: #eee;
+		font-size: 16px;
+		letter-spacing: 1px;
+		/*font-weight: 500;*/
+		font-family: '微软雅黑';
+		border-bottom: 1px solid #575757;
+	}
+	.nav-left .list-group-item:hover{
+		background: #999;
+	}
+	.nav-left .list-group-item:focus{
+		background: #999;
+	}
+</style>
+</head>
+<body>
+
+<div class="container-fluid">
+	<div class="row touxiang">
+		<a href="UploadHead.html" title="点击修改用户头像" target="content">
+			<img src="images/liudehua.jpg" alt="头像" id="empPic" class="img-responsive">
+		</a>
+		
+	</div>
+	<p class="text-center" id="empName" style="color:#eee">欢迎你，xxx</p>
+	<div class="row nav-left">
+		
+		<div class="list-group">
+        	<a href="QueryDeptServlet" class="list-group-item" target="content">部门管理</a>
+        	<a href="QueryJob.html" class="list-group-item" target="content">职务管理</a>
+            <a href="QueryEmp.html" class="list-group-item" target="content">员工管理</a>
+            <a href="Analysis.html" class="list-group-item" target="content">数据分析</a>
+            <a href="UpdatePwd.html" class="list-group-item" target="content">修改密码</a>
+            <a href="#" class="list-group-item" target="content">个人仓库</a>
+            <a href="Search.html" class="list-group-item" target="content">数据检索</a>            
+            <a href="ImgLib.html" class="list-group-item" target="content">公司图库</a>
+            <a href="LeaveMessageBoard.html" class="list-group-item" target="content">员工留言</a>
+            <a href="LogoutServlet" class="list-group-item" target="content">退出登陆</a>
+        </div>
+
+	</div>
+</div>
+
+	
+<!--引入jquery-->
+<script src="js/jquery.js"></script>
+<!--引入全局公共js文件-->
+<script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+<!--引入bootstrap的js功能-->
+<script src="js/bootstrap/bootstrap.js"></script>
+<script src="js/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+<!-- 引入参数插件 -->
+<script src="js/param.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	
+	$(function(){		
+		$.get(baseUrl + "/GetLoginNameServlet", function(data) {
+			
+			$('#empName').text("你好，" + data);
+
+		});
+
+		// 显示当前登陆用户头像
+		$.get(baseUrl + "/QueryEmpPicServlet", function(data) {
+			if (data != "null") {
+				
+				$('#empPic').attr('src',data);
+			};
+		});
+
+
+	});
+
+</script>
+</body>
+</html>

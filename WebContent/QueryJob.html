@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="js/layer/skin/layer.css"/>
+	<title>增加查询职位</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	<script src="js/bootstrap/html5shiv.min.js"></script>
+	<script src="js/bootstrap/respond.min.js"></script>		
+	<![end if] -->
+<title>查询职位</title>
+</head>
+<body>
+<div class="container">
+	<ol class="breadcrumb">
+		<li><a href="#">人力资源管理系统</a></li>
+		<li><a href="#">部门管理</a></li>			
+		<li>查询职位</li>
+	</ol>
+	<h2 class="page-header">查询职位</h2>
+	
+	<table class="table table-bordered table-striped" id="Jobtable">
+		<tr>
+			<th>职位编号</th>
+			<th>职位名称</th>
+			<th>最大工资</th>
+			<th>最小工资</th>
+			<th>操作</th>
+		</tr>
+	</table>
+	<div class="row">
+		<div class="col-sm-6 col-sm-offset-6">
+			<a href="AddJob.html" class="btn btn-success btn-block">增加职位</a>
+		</div>
+	</div>
+		
+</div>
+
+<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+	
+<!--引入全局公共js文件-->
+	<script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/bootstrap.js"></script>
+	<script src="js/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(function(){
+
+			layer.load();
+			$.getJSON(baseUrl + '/QueryJobServlet', function(data) {
+				
+				for(var item in data){
+					var str = '<tr index="'+ data[item].jobId +'">';
+					str += '<td>'+ data[item].jobId +'</td>';
+					str += '<td>'+ data[item].jobName +'</td>';
+					str += '<td>'+ data[item].jobMaxSal +'</td>';
+					str += '<td>'+ data[item].jobMinSal +'</td>';
+					str += '<td>';
+					str += '<a href="UpdateJob.html?jobId='+ data[item].jobId +'" class="btn btn-primary btn-sm" >修改</a>';
+					str += '<a href="javascript:;" class="btn btn-danger btn-sm" data-id="'+ data[item].jobId  +'">删除</a>';
+					str += '</td>';
+					str += '</tr>';
+					$('#Jobtable').append(str);
+				}
+				
+				layer.closeAll();
+			});
+
+			$('#Jobtable').on('click','.btn-danger',function(e){
+			
+				var that = this;
+				layer.confirm('您确定要删除此条数据吗？',{
+					btn:['确定','取消']
+				},function(){				
+					$.post(baseUrl + "/DelJobServlet",{jobId:$(that).attr('data-id')},function(data) {
+						
+						layer.closeAll();
+						layer.msg('成功删除');
+						$(that).parent('tr').remove();
+					});
+				},function(){
+					
+				});
+			});
+		});
+		
+	</script>
+</body>
+</html>

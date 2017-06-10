@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="js/layer/skin/layer.css"/>
+	<style type="text/css">
+		.pagination{
+			margin: 0;
+		}
+		.pageSelectBtn{
+			background: #FCFC67!important;
+		}
+		#btnGroup a:hover{
+			background: #C9C9C9;
+			
+		}
+		#btnGroup a:focus{
+			background-color:#fff;
+		}
+	</style>
+	<title>查询员工列表</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	<script src="js/bootstrap/html5shiv.min.js"></script>
+	<script src="js/bootstrap/respond.min.js"></script>		
+	<![end if] -->
+</head>
+<body>
+<div class="container">
+	<ol class="breadcrumb">
+		<li><a href="#">人力资源管理系统</a></li>
+		<li><a href="#">数据检索</a></li>			
+		<li>员工搜索</li>
+	</ol>
+	<h2 class="page-header">搜索员工信息</h2>
+	<!-- 搜索员工信息区域开始 -->
+	<form class="form-inline" method="post" action="">
+		<div class="form-group">
+			<label for="" >选择部门</label>					
+			<select id="deptId" name="deptId" class="form-control">
+				<option value="0">请选择部门</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="">选择职务</label>
+			<select name="jobId" id="jobId" class="form-control">
+				<option value="0">请选择职务</option>
+				
+			</select>
+		</div>
+		<div class="form-group">
+			<div class="input-group">
+            	<input type="text" placeholder="请输入员工姓名" id="empName" class="form-control">
+                <span class="input-group-btn">
+                	<button type="button" class="btn btn-primary" id="searchBtn">搜素</button>
+                </span>
+            </div>
+		</div>
+	</form>
+	<!-- 搜索员工信息区域结束 -->
+	
+	<table class="table table-bordered table-striped" id="datatable">
+		<thead>
+			<tr>
+				<th>员工编号</th>
+				<th>员工姓名</th>
+				<th>邮箱</th>
+				<th>电话</th>
+				<th>部门</th>
+				<th>职务</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+		</tbody>
+		<!-- <tr>
+			<td>100</td>
+			<td>tom</td>
+			<td>tom@163.com</td>
+			<td>13012345678</td>
+			<td>开发部</td>
+			<td>程序员</td>
+			<td>
+			
+				<a href="#" class="btn btn-primary btn-sm" >修改</a>
+				<a href="javascript:;" class="btn btn-danger btn-sm" >删除</a>
+				<a href="javascript:;" class="btn btn-info btn-sm">详情</a>
+
+			</td>
+		</tr> -->
+	</table>
+
+	<!-- 分页工具条 -->
+	<div class="row">
+		<div class="col-sm-4">
+			<span id="pagerInfo">共xx条数据，xx/xx页</span>
+		</div>
+		<div class="col-sm-8">
+			<nav>
+	        	<ul class="pagination pagination-sm pull-right" id="btnGroup">
+	        		<li><a href="javascript:void(0);" id="firstBtn">首页</a></li>
+	                <li><a href="javascript:void(0);" id="prevBtn">上一页</a></li>
+	                <li><a href="javascript:void(0);" class="pageBtn pageSelectBtn">1</a></li>
+	                <li><a href="javascript:void(0);" class="pageBtn">2</a></li>
+	                <li><a href="javascript:void(0);" class="pageBtn">3</a></li>
+	                <li><a href="javascript:void(0);" class="pageBtn">4</a></li>
+	                <li><a href="javascript:void(0);" class="pageBtn">5</a></li>
+	                <li><a href="javascript:void(0);" id="nextBtn">下一页</a></li>
+	                <li><a href="javascript:void(0);" id="lastBtn">末页</a></li>
+	        	</ul>
+	        </nav>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-6 col-sm-offset-6">
+			<a href="AddEmp.html" class="btn btn-success btn-block">增加新员工</a>
+			
+		</div>
+	</div>
+		
+</div>
+
+
+<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+
+	<!--引入全局公共js文件-->
+	<script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/bootstrap.js"></script>
+	<script src="js/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(function(){
+
+			
+			
+			// 分页变量
+			var recordCount;//总记录数
+			var pageSize;//每页多少条
+			var pageCount;//共几页
+			var pageNum = 1;//当前页
+
+
+			// 获取页码对象
+			var pageBtn = $('.pageBtn');
+
+			// 初始化第一页数据
+			getData();
+
+			//全局设置ajax同步
+			$.ajaxSetup({
+				async:false
+			});			
+			
+			// 动态生成部门列表和职务列表
+			$.getJSON(baseUrl + "/QueryDeptJsonServlet", function(data) {
+				
+				$.each(data, function(index, val) {
+
+					$('#deptId').append('<option value="'+ val.deptId +'">'+ val.deptName +'</option>');
+
+				});
+
+
+			})
+			.error(function() {
+				layer.msg('网络请求失败');
+			});
+			
+			$.getJSON(baseUrl + "/QueryJobServlet", function(data) {				
+				
+				$.each(data, function(index, val) {
+
+					$('#jobId').append('<option value="'+ val.jobId +'">'+ val.jobName +'</option>');
+
+				});
+
+			})
+			.error(function() {
+				layer.msg('网络请求失败');
+			});
+
+			//分页查询函数
+			function getData(){
+
+				var params = {
+					pageNumStr:pageNum,
+					pageSize:7,
+					deptId:$('#deptId').val(),
+					jobId:$('#jobId').val(),
+					empName:$('#empName').val()
+				};
+				
+				$.getJSON(baseUrl + "/SearchEmpServlet",params, function(data) {						
+						
+						var list = data.list;//数据集合
+						var html = '';
+						var datatable = $('#datatable tbody');
+						datatable.empty();
+						
+						if (data.pager.recordCount == 0) {
+							html = '<tr>';
+							html += '<td colspan="7" align="center">没有您要查找的信息</td>';
+							html += '</tr>';
+							datatable.append(html);
+
+							$('#btnGroup').hide();
+							return;
+						};
+						// 遍历数据集合
+						$.each(list, function(index, val) {
+							$('#btnGroup').show();
+							 
+							html = '<tr>';
+							html += '	<td>'+ val.empId +'</td>';
+							html += '	<td>'+ val.empName+'</td>';
+							html += '	<td>'+ val.empEmail+'</td>';
+							html += '	<td>'+ val.phone +'</td>';
+							html += '	<td>'+ val.dept.deptName +'</td>';
+							html += '	<td>'+ val.job.jobName +'</td>';
+							html += '	<td>';
+							html += '		<a href="javascript:;" class="btn btn-danger btn-sm del-btn" data-id="'+ val.empId +'">删除</a>';
+							html += '		<a href="javascript:;" class="btn btn-info btn-sm update-btn"  data-id="'+ val.empId +'">详情</a>';
+							html += '	</td>';
+							html += '</tr>';
+							datatable.append(html);
+
+						});
+
+						//设置分页信息
+						recordCount = data.pager.recordCount;
+						pageSize = data.pager.pageSize;
+						pageCount = data.pager.pageCount;
+						pageNum = data.pager.pageNum;
+
+						$('#pagerInfo').html("共"+ recordCount +"条数据，"+ pageNum +"/"+ pageCount +"页");
+
+						//动态显示分页按钮
+						if (pageNum <= 1) {
+							$('#firstBtn').hide();
+							$('#prevBtn').hide();
+						}else {
+							$('#firstBtn').show();
+							$('#prevBtn').show();
+						}
+
+						if (pageNum >= pageCount) {
+							$('#lastBtn').hide();
+							$('#nextBtn').hide();
+						}else {
+							$('#lastBtn').show();
+							$('#nextBtn').show();
+						}
+						// 如果页面少于5页
+						if(pageCount < 5){
+							pageBtn.show();
+							for(var i = 4;i >= pageCount;i --)
+								pageBtn.eq(i).hide();
+						}else{
+							pageBtn.show();
+						}
+				})
+				.error(function() {
+					layer.msg("网络请求失败");					
+				});
+			}
+			
+
+			// 首页按钮单击
+			$('#firstBtn').click(function(event) {
+				pageNum = 1;
+				getData();
+				pageBtnGroup(pageNum);				
+			});
+
+			// 上一页按钮单击
+			$('#prevBtn').click(function(event) {
+				pageNum --;
+				getData();
+				pageBtnGroup(pageNum);				
+			});
+
+			// 下一页按钮单击
+			$('#nextBtn').click(function(event) {
+				pageNum ++;
+				getData();
+				pageBtnGroup(pageNum);			
+			});
+
+			// 末页按钮单击
+			$('#lastBtn').click(function(event) {
+				pageNum = pageCount;
+				getData();
+				pageBtnGroup(pageNum);			
+			});
+			
+			
+			
+			// 页码单击事件
+			pageBtn.click(function(e) {
+				// 获取页码数值
+				var pageVal = parseInt($(this).text());
+				
+				pageNum = pageVal;
+				getData();
+
+				pageBtnGroup(pageNum);
+			});
+			
+			// 修改页码
+			function pageBtnGroup(pageVal){
+				
+				$.each(pageBtn, function(index, val) {
+					pageBtn.eq(index).removeClass('pageSelectBtn');
+				});
+
+				// 如果页面数小于等于5
+				if(pageCount <= 5){
+					pageBtn.eq(pageVal - 1).addClass('pageSelectBtn');
+					return;
+				}
+
+				if (pageVal == 2 || pageVal == 1) {
+					if(pageVal == 2){
+						pageBtn.eq(1).addClass('pageSelectBtn');
+					}else{
+						pageBtn.eq(0).addClass('pageSelectBtn');
+					}
+					
+					pageBtn.eq(0).text(1);
+					pageBtn.eq(1).text(2);
+					pageBtn.eq(2).text(3);
+					pageBtn.eq(3).text(4);
+					pageBtn.eq(4).text(5);
+				}else if(pageVal == pageCount - 1 || pageVal == pageCount){
+					if (pageVal == pageCount - 1) {
+						pageBtn.eq(3).addClass('pageSelectBtn');
+					}else{
+						pageBtn.eq(4).addClass('pageSelectBtn');
+					}
+					
+					pageBtn.eq(0).text(pageCount - 4);
+					pageBtn.eq(1).text(pageCount - 3);
+					pageBtn.eq(2).text(pageCount - 2);
+					pageBtn.eq(3).text(pageCount - 1);
+					pageBtn.eq(4).text(pageCount);
+
+				}else if (pageVal >= 3) {
+					pageBtn.eq(2).addClass('pageSelectBtn');
+					pageBtn.eq(0).text(pageVal - 2);
+					pageBtn.eq(1).text(pageVal - 1);
+					pageBtn.eq(2).text(pageVal);
+					pageBtn.eq(3).text(pageVal + 1);
+					pageBtn.eq(4).text(pageVal + 2);					
+				}
+			}
+
+			$('#datatable').on('click', '.update-btn', function(event) {
+				
+				var empId = $(this).attr('data-id');
+
+				layer.open({
+					title:'员工详情',
+				    type: 2, 				   
+				    area: ['620px', '600px'], //宽高
+				    content: baseUrl + '/UpdateEmp.html?empId=' + empId
+				});
+
+			});
+
+			// 删除按钮单击
+			$('#datatable').on('click', '.del-btn', function(event) {
+				
+				var that = this;
+
+				// 确认框
+				layer.confirm('确定要删除此员工吗？', {
+				    btn: ['确定','取消'] //按钮
+				}, function(){	
+
+					layer.closeAll();
+					
+					//获得自定义属性
+					var empId = $(that).attr('data-id');
+
+					//发出ajax请求，调用后端接口删除数据
+					$.post(baseUrl + '/DelEmpServlet',{empId:empId},function(data) {
+
+						layer.msg('删除成功！');
+
+						$(that).parents('tr').remove();
+
+					});
+				    
+				}, function(){					
+				   
+				});
+
+			});
+
+
+			$('#searchBtn').click(function(event) {
+				
+				pageNum = 1;
+				pageBtnGroup(pageNum);
+				getData();
+			});
+		});
+		
+	</script>
+</body>
+</html>

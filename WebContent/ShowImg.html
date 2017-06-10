@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="js/layer/skin/layer.css"/>
+	<title>图片上传</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	<script src="js/bootstrap/html5shiv.min.js"></script>
+	<script src="js/bootstrap/respond.min.js"></script>		
+	<![end if] -->
+</head>
+</head>
+<body>
+	<img src="" alt="" id="imgId">
+
+	<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+
+	<!--引入全局公共js文件-->
+	<script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/bootstrap.js"></script>
+	<script src="js/param.js"></script>
+	<script src="js/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		$(document).ready(function(){
+			
+			$('#imgId').attr('src', baseUrl + '/GetPicServlet?picId=' + $.getParam('picId'));
+			
+		});
+
+
+		
+	</script>
+</body>
+</html>

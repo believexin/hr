@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="css/login.css">
+</head>
+<body>
+    <!--登陆主体开始-->
+    <div id="main">
+        <!-- 头像区开始-->
+        <div id="header-border">
+            <!-- 头像区内部开始-->
+            <div id="header-pic">
+                
+            </div>
+            <!-- 头像区内部结束-->
+        </div>
+        <!-- 头像区结束-->
+        <!-- 账号密码区开始-->
+        <div id="account">
+            <form action="">
+                <div class="input">
+                    <input type="text"  id="empLoginName"  name="empLoginName" placeholder="please input username"/>
+                </div>
+                <div class="input">
+                    <input type="password" id="empPwd" class="empPwd" placeholder="please input password"/>
+                </div>
+            </form>
+        </div>
+        <!-- 账号密码区结束-->
+        <!-- 登陆按钮开始-->
+        <button id="login-btn">Sign In</button>
+        <!-- 登陆按钮结束-->
+        <!-- 登陆区底部开始-->
+        <div id="footer">
+            <a href="#">Forget Password?</a>
+        </div>
+        <!-- 登陆区底部结束-->
+    </div>
+    <!--登陆主体结束-->
+
+    
+    <!--引入jquery-->
+    <script src="js/jquery.js"></script>
+    <!--引入全局公共js文件-->
+    <script src="js/global.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+
+        $(function(){
+
+
+            $('#empLoginName').blur(function(event) {
+                // 判断是否有头像数据
+                if (localStorage.getItem($('#empLoginName').val() + "Pic")) {
+                    $('#header-pic').css('background', 'url('+ localStorage.getItem($("#empLoginName").val() + "Pic") +')');
+                }else{
+                    $('#header-pic').css({'background':'url(images/defaul.jpg)',
+                                            'background-size':'cover'
+                                        });
+                }
+            });
+
+            $('#empLoginName').change(function(event) {
+                // 判断是否有头像数据
+                if (localStorage.getItem($('#empLoginName').val() + "Pic")) {
+                    $('#header-pic').css('background', 'url('+ localStorage.getItem($("#empLoginName").val() + "Pic") +')');
+                }else{
+                    $('#header-pic').css({'background':'url(images/defaul.jpg)',
+                                            'background-size':'cover'
+                                        });
+                }
+            });
+            
+            
+            // 用户登陆
+            $('#login-btn').click(function(){
+				
+            	if($('#empLoginName').val() == ""){
+            		layer.msg("用户名不能为空");
+            		return;
+            	}
+            	if($('#empPwd').val() == ""){
+            		layer.msg("密码不能为空");
+            		return;
+            	}
+            	
+                var params = {
+                    empLoginName:$('#empLoginName').val(),
+                    empPwd:$('#empPwd').val()
+                }
+
+                $.post(baseUrl + "/LoginServlet", params,function(data, textStatus, xhr) {
+                    
+                    if (data == 1) {
+                        layer.msg("用户名不存在");
+                    };
+                    if (data == 2) {
+                        layer.msg("密码错误");
+                    };
+                    if (data == 3) {                       
+
+                        // 保存用户头像到浏览器本次储存
+                        $.get(baseUrl + "/QueryEmpPicServlet", function(data) {
+                            if (data && data != "null") {
+                               localStorage.setItem($('#empLoginName').val() + "Pic",data);
+                            }
+                             location.href = "main.html";
+                        })
+                        .error(function() {
+                             location.href = "main.html";
+                        });
+
+                    };
+
+                })
+                .error(function(){
+                    layer.msg("网络请求失败");
+                });
+
+            });
+
+        });
+
+    </script>
+</body>
+</html>
